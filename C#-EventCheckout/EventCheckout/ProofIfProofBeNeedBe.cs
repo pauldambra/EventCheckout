@@ -34,5 +34,31 @@ namespace EventCheckout
             Assert.Equal("some data", returnedData);
             Assert.Equal("some metadata", returnedMetaData);
         }
+        
+        [Fact]
+        public async Task TheExampleCanRunWithJsonStored()
+        {
+            var connection =
+                EventStoreConnection.Create(new IPEndPoint(IPAddress.Loopback, 1113));
+            await connection.ConnectAsync();
+
+            var myEvent = new EventData(Guid.NewGuid(), "testEvent", true,
+                Encoding.UTF8.GetBytes("{\"some\": \"data\"}"),
+                Encoding.UTF8.GetBytes("some metadata"));
+
+            await connection.AppendToStreamAsync("test-stream",
+                ExpectedVersion.Any, myEvent);
+
+            var streamEvents = await 
+                connection.ReadStreamEventsBackwardAsync("test-stream", StreamPosition.End, 1, false);
+
+            var returnedEvent = streamEvents.Events[0].Event;
+
+            var returnedData = Encoding.UTF8.GetString(returnedEvent.Data);
+            var returnedMetaData = Encoding.UTF8.GetString(returnedEvent.Metadata);
+            
+            Assert.Equal("{\"some\": \"data\"}", returnedData);
+            Assert.Equal("some metadata", returnedMetaData);
+        }
     }
 }
