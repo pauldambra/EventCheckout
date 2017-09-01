@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Xunit;
 
-namespace EventCheckout
+namespace EventCheckout.Tests
 {
    
     public class ProofIfProofBeNeedBe
