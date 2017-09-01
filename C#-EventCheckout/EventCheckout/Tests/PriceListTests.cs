@@ -7,7 +7,7 @@ namespace EventCheckout.Tests
         [Fact]
         public void CanAddAPrice()
         {
-            Event[] events =
+            PriceAdded[] events =
             {
                 new PriceAdded("A", 50)
             };
@@ -22,7 +22,7 @@ namespace EventCheckout.Tests
         [Fact]
         public void CanGetOnlyTheLatestPrice()
         {
-            Event[] events =
+            PriceAdded[] events =
             {
                 new PriceAdded("A", 50),
                 new PriceAdded("A", 20)
@@ -38,7 +38,7 @@ namespace EventCheckout.Tests
         [Fact]
         public void CanGetPriceForMultipleSKU()
         {
-            Event[] events =
+            PriceAdded[] events =
             {
                 new PriceAdded("A", 50),
                 new PriceAdded("B", 30)
@@ -54,7 +54,7 @@ namespace EventCheckout.Tests
         [Fact]
         public void ThrowsANiceExceptionWhenSKUIsUnknown()
         {
-            Event[] events =
+            PriceAdded[] events =
             {
                 new PriceAdded("A", 50),
                 new PriceAdded("B", 30)
@@ -63,7 +63,9 @@ namespace EventCheckout.Tests
             var priceList = new PriceList();
             priceList.Apply(events);
 
-            var ex = Assert.Throws<CannotProvidePriceForUnknownSKU>(() => priceList.PriceFor("C"));
+            var ex = Assert.Throws<PriceList.CannotProvidePriceForUnknownSKU>(
+                () => priceList.PriceFor("C"));
+            
             Assert.Contains("price for C", ex.Message);
         }
     }

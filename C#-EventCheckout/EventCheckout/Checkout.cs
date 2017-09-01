@@ -9,21 +9,24 @@ namespace EventCheckout
     public class Checkout
     {
         private readonly IEventStoreConnection _eventStoreConnection;
+        private readonly PriceList _priceList;
 
-        private Checkout(IEventStoreConnection eventStoreConnection)
+        private Checkout(IEventStoreConnection eventStoreConnection, PriceList priceList)
         {
             _eventStoreConnection = eventStoreConnection;
+            _priceList = priceList;
         }
 
         public static async Task<Checkout> With(IEventStoreConnection eventStoreConnection)
         {
             await eventStoreConnection.ConnectAsync();
-            return new Checkout(eventStoreConnection);
+            var priceList = await PriceList.From(eventStoreConnection);
+            return new Checkout(eventStoreConnection, priceList);
         }
 
         public async Task Scan(string sku, Guid correlationId)
         {
-            var @event = new ItemScanned(sku, 50); 
+            var @event = new ItemScanned(sku, _priceList.PriceFor(sku)); 
             var itemScannedEventData = new EventData(
                 Guid.NewGuid(), 
                 nameof(ItemScanned), 
